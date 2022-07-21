@@ -10,32 +10,38 @@ const getEns = (req, res) => {
 
 const getEnsById = (req, res) => {
     const id = parseInt(req.params.id);
+
     pool.query(queries.getEnsById, [id], (error, results) => {
         if (error) throw error;
         res.status(200).json(results.rows);
     });
+        
+    // pool.query(queries.getEnsById, [id], (error, results) => {
+    //     if (error) throw error;
+    //     res.status(200).json(results.rows);
+    // });
 };
 
 const addEns = (req, res) => {
-    const {id_ens, nom, prenom, tel, email, initiale, departement, service} = req.body;
+    const {nom, prenom, tel, email, initiale, departement} = req.body;
     
     //check Ens
-    pool.query(queries.checkEns, [id_ens]), (error,results) => {
+    pool.query(queries.checkEns, [nom, prenom], (error,results) => {
         if (results.rows.length){
             res.send("Cette Ens existe déja");
         }
-    }
+    });
 
     //ajoute Ens
-    pool.query(queries.addEns, [id_ens, nom, prenom, tel, email, initiale, departement, service], (error, results) => {
+    pool.query(queries.addEns, [nom, prenom, tel, email, initiale, departement], (error, results) => {
         if (error) throw error;
-        res.status(201).send("Ens créée");
+        res.status(201).send("Ens créé");
     });
 }; 
 
 const updateEns = (req, res) => {
     const id = parseInt(req.params.id);
-    const {id_ens, nom, prenom, tel, email, initiale, departement, service} = req.body;
+    const {nom, prenom, tel, email, initiale, departement} = req.body;
 
     pool.query(queries.getEnsById, [id], (error, results) => {
         const noEnsFound = !results.rows.length;
@@ -43,7 +49,7 @@ const updateEns = (req, res) => {
             res.send("Enseignant n'est pas dans la DB");
         }
 
-        pool.query(queries.updateEns, [id_ens, nom, prenom, tel, email, initiale, departement, service, id], (error, results) => {
+        pool.query(queries.updateEns, [nom, prenom, tel, email, initiale, departement, id], (error, results) => {
             if (error) throw error;
             res.status(200).send("Enseignant bien modifié");
         });
@@ -53,8 +59,8 @@ const updateEns = (req, res) => {
 const removeEns = (req, res) => {
     const id = parseInt(req.params.id);
 
-    pool.query(queries.removeEns, [id], (error, results) => {
-        const noEnsFound = !results;
+    pool.query(queries.getEnsById, [id], (error, results) => {
+        const noEnsFound = !results.rows.length;
         if (noEnsFound){
             res.send("Enseignant n'est pas dans la DB");
         }
@@ -66,10 +72,27 @@ const removeEns = (req, res) => {
     });
 };
 
+const getService = (req, res) => {
+    const id = parseInt(req.params.id);
+
+    pool.query(queries.getEnsById, [id], (error, results) => {
+        const noEnsFound = !results.rows.length;
+        if (noEnsFound){
+            res.send("Enseignant n'est pas dans la DB");
+        }
+
+        else (pool.query(queries.getServiceByEns, [id], (error, results) => {
+            if (error) throw error;
+            res.status(200).send(results);
+        }));
+    });
+};
+
 module.exports = {
     getEns,
     getEnsById,
     addEns,
     updateEns,
     removeEns,
+    getService,
 };

@@ -17,32 +17,32 @@ const getGroupesById = (req, res) => {
 };
 
 const addGroupe = (req, res) => {
-    const {num_Groupe, capacite, capacite_pc, projecteur, vga, hdmi} = req.body;
+    const {nom_groupe, capacite} = req.body;
     
     //check Groupe
-    pool.query(queries.checkGroupe, [num_Groupe]), (error,results) => {
+    pool.query(queries.checkGroupe, [nom_groupe], (error,results) => {
         if (results.rows.length){
             res.send("Cette Groupe existe déja");
         }
-    }
+    });
 
     //ajoute Groupe
-    pool.query(queries.addGroupe, [num_Groupe, capacite, capacite_pc, projecteur, vga, hdmi], (error, results) => {
+    pool.query(queries.addGroupe, [nom_groupe, capacite], (error, results) => {
         if (error) throw error;
-        res.status(201).send("Groupe créée");
+        res.status(201).send("Groupe créé");
     });
 }; 
 
 const updateGroupe = (req, res) => {
     const id = parseInt(req.params.id);
-    const {num_Groupe, capacite, capacite_pc, projecteur, vga, hdmi} = req.body;
+    const {nom_groupe, capacite} = req.body;
 
     pool.query(queries.getGroupeById, [id], (error, results) => {
         const noGroupeFound = !results.rows.length;
         if (noGroupeFound){
             res.send("Groupe n'est pas dans la DB");
         }
-        else (pool.query(queries.updateGroupe, [num_Groupe, capacite, capacite_pc, projecteur, vga, hdmi, id], (error, results) => {
+        else (pool.query(queries.updateGroupe, [nom_groupe, capacite, id], (error, results) => {
             if (error) throw error;
             res.status(200).send("Groupe bien modifié");
         }));

@@ -19,11 +19,12 @@ const getCoursById = (req, res) => {
 const addCours = (req, res) => {
     const {id_ens, id_matiere, id_salle, id_groupe, heure_debut, heure_fin, id_cours} = req.body;
     //check salle, groupe, heure, ens
-    pool.query(queries.checkEns, [id_ens,heure_debut,heure_fin]), (error,results) => {
+    pool.query(queries.checkEns, [id_ens,heure_debut,heure_fin], (error,results) => {
         if (results.rows.length){
             res.send("Enseignant non disponible");
         }
-    }
+    });
+    
     pool.query(queries.addCours, [id_ens, id_matiere, id_salle, id_groupe, heure_debut, heure_fin, id_cours], (error, results) => {
         if (error) throw error;
         res.status(201).send("Cours créé");
